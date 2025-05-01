@@ -11,4 +11,4 @@
  - [X]  Summarize the results Done
  - [X]  Compare the performance between the models   Done
    [X] Building an app for diabetes_risk: Diabetes Risk Calculator  Done
- - [ ] Prepare for the Presentation
+ - [x] Prepare for the Presentation
