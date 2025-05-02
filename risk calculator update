@@ -1,0 +1,68 @@
+import pandas as pd
+import streamlit as st
+
+# Load data
+@st.cache_data
+def load_data(path):
+    try:
+        df = pd.read_csv(path)
+        return df
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return None
+
+# Risk calculation logic
+def calculate_risk(age, bmi, glucose, bp):
+    risk_score = 0
+    if age > 45:
+        risk_score += 1
+    if bmi > 25:
+        risk_score += 1
+    if glucose > 140:
+        risk_score += 2
+    if bp > 130:
+        risk_score += 1
+
+    if risk_score >= 3:
+        return "High Risk"
+    elif risk_score == 2:
+        return "Moderate Risk"
+    else:
+        return "Low Risk"
+
+# Streamlit UI
+def main():
+    st.title("Diabetes Risk Calculator")
+    
+    data_path = 'C:\\Users\\user\\OneDrive\\Documents\\diabetes data.csv'
+    df = load_data(data_path)
+
+    if df is not None:
+        st.subheader("Sample Data")
+        st.dataframe(df.head())
+
+    st.subheader("Enter Patient Information")
+    age = st.number_input("Age", min_value=1, max_value=120, value=50)
+    bmi = st.number_input("BMI", min_value=10.0, max_value=60.0, value=28.0)
+    glucose = st.number_input("Glucose Level (mg/dL)", min_value=50, max_value=300, value=150)
+    bp = st.number_input("Blood Pressure (mm Hg)", min_value=80, max_value=200, value=135)
+
+    if st.button("Calculate Risk"):
+        risk_level = calculate_risk(age, bmi, glucose, bp)
+        st.markdown(f"### 🩺 Diabetes Risk Level: **{risk_level}**")
+
+        st.info("""
+        **Explanation**:
+        - **High Risk**: Age > 45, BMI > 25, Glucose > 140, or BP > 130.
+        - **Moderate Risk**: Two risk factors present.
+        - **Low Risk**: Less than two risk factors.
+        """)
+
+    if df is not None and st.checkbox("Run Batch Risk Calculation"):
+        df['Risk Level'] = df.apply(
+            lambda row: calculate_risk(row['Age'], row['BMI'], row['Glucose'], row['BloodPressure']), axis=1
+        )
+        st.dataframe(df[['Age', 'BMI', 'Glucose', 'BloodPressure', 'Risk Level']])
+
+if __name__ == "__main__":
+    main()
